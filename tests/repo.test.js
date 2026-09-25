@@ -20,7 +20,7 @@ test('operating files exist', () => {
     'AGENTS.md', 'CLAUDE.md', 'README.md', 'docs/decisions.md', 'docs/founder-setup.md',
     '.github/copilot-instructions.md', '.github/pull_request_template.md',
     '.github/ISSUE_TEMPLATE/order.yml', '.github/workflows/check.yml',
-    '.github/workflows/copilot-setup-steps.yml', '.github/hooks/guard.json', '.claude/settings.json',
+    '.github/workflows/copilot-setup-steps.yml', '.github/workflows/labels.yml','.github/hooks/guard.json', '.claude/settings.json',
   ]) {
     assert.ok(existsSync(new URL(p, root)), `missing ${p}`);
   }

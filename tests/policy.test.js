@@ -24,10 +24,19 @@ test('deleting or renaming an existing test alongside source changes fails', () 
   assert.equal(evaluate([{ status: 'M', path: 'src/a.js' }, { status: 'R', oldPath: 'tests/a.test.js', path: 'tests/b.test.js' }]).ok, false);
 });
 
-test('a tests-only change may modify tests but is reported', () => {
-  const r = evaluate([{ status: 'M', path: 'tests/a.test.js' }]);
+test('a tests-only change may modify tests but becomes founder-only', () => {
+  const r = evaluate([{ status: 'M', path: 'products/x/tests/a.test.js' }]);
   assert.equal(r.ok, true);
-  assert.deepEqual(r.testsChanged, ['tests/a.test.js']);
+  assert.deepEqual(r.testsChanged, ['products/x/tests/a.test.js']);
+  assert.deepEqual(r.governance, ['products/x/tests/a.test.js']);
+});
+
+test('multi-line skip options are caught; unrelated keys are not', () => {
+  const f = (text) => evaluate([{ status: 'A', path: 'tests/a.test.js' }], [{ path: 'tests/a.test.js', text }]).ok;
+  assert.equal(f('    { skip: true },'), false);
+  assert.equal(f("    only: 'reason',"), false);
+  assert.equal(f('    skip: false,'), true);
+  assert.equal(f('    skipped: 3,'), true);
 });
 
 test('newly skipped or focused tests fail', () => {
@@ -74,6 +83,6 @@ test('git output parsers', () => {
 });
 
 test('test file detection', () => {
-  for (const p of ['tests/a.js', 'products/x/test/a.js', 'src/a.test.js', 'src/a.test.mjs']) assert.ok(isTestFile(p), p);
+  for (const p of ['tests/a.js', 'products/x/test/a.js', 'src/a.test.js', 'src/a.test.mjs', 'src/__tests__/a.js', 'src/a.spec.ts']) assert.ok(isTestFile(p), p);
   for (const p of ['src/a.js', 'docs/testing.md', 'contest/a.js']) assert.ok(!isTestFile(p), p);
 });

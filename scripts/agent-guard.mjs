@@ -12,8 +12,9 @@ const PATH_KEYS = new Set(['path', 'file_path', 'filePath', 'notebook_path', 'pa
 const COMMAND_KEYS = new Set(['command', 'cmd', 'script']);
 
 export function isSecretPath(p) {
-  const base = String(p).split(/[\\/]/).pop();
+  const base = String(p).split('/').pop();
   if (/^\.env(\..+)?$/.test(base)) return !SAFE_ENV.has(base);
+  if (/^\.env[*?[]/.test(base)) return true; // globs such as .env*
   return /\.(pem|key|p12|pfx)$/i.test(base) || /^id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$/.test(base);
 }
 
@@ -25,10 +26,14 @@ export function isForcePush(command) {
   return String(command)
     .split(/&&|\|\||;|\n/)
     .some((part) => {
-      const t = tokens(part);
-      const i = t.indexOf('git');
-      if (i === -1 || t[i + 1] !== 'push') return false;
-      return t.slice(i + 2).some((a) => a === '-f' || a.startsWith('--force') || /^\+/.test(a) || /^-[a-zA-Z]*f/.test(a));
+      const t = part.split(/[\s'"`]+/).filter(Boolean);
+      let i = t.indexOf('git');
+      if (i === -1) return false;
+      i += 1;
+      // skip git's global options, e.g. `git -C dir -c k=v push`
+      while (i < t.length && t[i].startsWith('-')) i += ['-C', '-c', '--git-dir', '--work-tree', '--namespace'].includes(t[i]) ? 2 : 1;
+      if (t[i] !== 'push') return false;
+      return t.slice(i + 1).some((a) => a === '-f' || a.startsWith('--force') || /^\+/.test(a) || /^-[a-zA-Z]*f/.test(a));
     });
 }
 
@@ -56,7 +61,9 @@ export function decide(payload) {
     if (isSecretPath(p)) return `Access to secret file "${p}" is blocked (AGENTS.md: never read or commit secrets).`;
   }
   for (const c of found.commands) {
-    const secret = tokens(c).find(isSecretPath);
+    // Commit messages are prose, not file access.
+    const prose = /(?:\s-[a-zA-Z]*m|--message)(?:=|\s+)(?:"(?:[^"\\]|\\.)*"|'[^']*')/g;
+    const secret = tokens(c.replace(prose, ' ')).find(isSecretPath);
     if (secret) return `Command touches secret file "${secret}" and is blocked (AGENTS.md: never read or commit secrets).`;
     if (isForcePush(c)) return 'Force push is blocked: it is a founder-only, irreversible action (AGENTS.md).';
   }

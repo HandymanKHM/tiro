@@ -84,9 +84,10 @@ your recommendation) for **Founder-only decisions**:
 - Publishing outside this repository, or contacting any person or company.
 - Handling personal data of real people, credentials, or payment details.
 - Irreversible actions: deleting history, force-pushing, deleting repositories.
-- Changing governance files (this file, `.github/**`, `scripts/pr-policy.mjs`,
-  `scripts/agent-guard.sh`, `tests/policy*.test.js`) — allowed in a PR, but
-  such PRs are merged only by the founder.
+- Changing governance files or existing tests — allowed in a PR, but such
+  PRs are merged only by the founder. Governance files are listed in
+  `GOVERNANCE` in `scripts/pr-policy.mjs` (this file, CLAUDE.md, `.github/**`,
+  `.claude/**`, the check/policy/guard scripts and their tests, package.json).
 - Two reasonable readings of an order that lead to materially different results.
 
 🚫 Never
@@ -95,7 +96,8 @@ your recommendation) for **Founder-only decisions**:
 - Hard-code expected values or special-case tests.
 - Add a dependency without a decision entry naming it, its registry URL and
   why it is needed.
-- Read, print or commit secrets or `.env` files. (A hook enforces this.)
+- Read, print or commit secrets or `.env` files. (A guard hook trips on the
+  obvious cases; it is a tripwire, not a guarantee.)
 - Claim something passed without the command output that proves it.
 - Expand scope beyond the order. Note good ideas as follow-up issues instead.
 

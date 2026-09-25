@@ -18,13 +18,14 @@ export const GOVERNANCE = [
   /^package\.json$/,
 ];
 
-export const isTestFile = (p) => /(^|\/)tests?\//.test(p) || /\.test\.[cm]?[jt]sx?$/.test(p);
+export const isTestFile = (p) => /(^|\/)(tests?|__tests__)\//.test(p) || /\.(test|spec)\.[cm]?[jt]sx?$/.test(p);
 // Matches statements, not text inside strings: a line that starts with a skip,
 // only or todo call, or a test call passing { skip | only | todo: <truthy> }.
 const DISABLED_TEST = [
   /^\s*(?:await\s+)?(?:describe|it|test|suite)\.(?:skip|only|todo)\s*\(/,
   /^\s*(?:await\s+)?t\.(?:skip|todo)\s*\(/,
   /^\s*(?:await\s+)?(?:describe|it|test|suite)\s*\(.*\{\s*(?:skip|only|todo)\s*:\s*(?!false\b)\S/,
+  /^\s*\{?\s*(?:skip|only|todo)\s*:\s*(?:true|['"`])/,
 ];
 
 // changes: [{ status: 'A'|'M'|'D'|'R', path, oldPath? }]
@@ -44,8 +45,13 @@ export function evaluate(changes, addedLines = []) {
       violations.push(`test skipped or focused in ${l.path}: ${l.text.trim()}`);
     }
   }
-  const governance = [...new Set(changes.flatMap((c) => [c.path, c.oldPath]).filter((p) => p && GOVERNANCE.some((r) => r.test(p))))];
   const testsChanged = alteredTests.map((c) => c.oldPath ?? c.path);
+  // Changing an existing test is founder-only even in a tests-only PR, so a
+  // test cannot be weakened in one PR and exploited in the next.
+  const governance = [...new Set([
+    ...changes.flatMap((c) => [c.path, c.oldPath]).filter((p) => p && GOVERNANCE.some((r) => r.test(p))),
+    ...testsChanged,
+  ])];
   return { ok: violations.length === 0, violations, governance, testsChanged };
 }
 
@@ -77,6 +83,7 @@ function main() {
     `## PR policy against ${base}`,
     `test integrity: ${result.ok ? 'pass' : 'FAIL'}`,
     ...result.violations.map((v) => `- ${v}`),
+    `tests changed: ${result.testsChanged.length ? result.testsChanged.join(', ') : 'none'}`,
     `governance: ${result.governance.length ? result.governance.join(', ') : 'none'}`,
     result.governance.length ? '(governance changes are merged by the founder only)' : '',
   ].filter(Boolean).join('\n');

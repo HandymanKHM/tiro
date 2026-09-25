@@ -84,7 +84,7 @@ prompts, are what keep agents honest.
 | Reviewer bias toward own work | arXiv 2404.13076 | Reviewer in fresh context, never sees author reasoning |
 | Noisy reviews | arXiv 2412.18531 ; https://code.claude.com/docs/en/code-review | Find broadly, verify each finding, severity tiers, nit cap |
 | Prompt injection via issues | https://invariantlabs.ai/blog/mcp-github-vulnerability | Only write-access users trigger agents; text from others is data |
-| Secret leakage | arXiv 2309.07639 | Guard hook blocks secret files; secret scanning in CI |
+| Secret leakage | arXiv 2309.07639 | Guard hook trips on secret files; GitHub secret scanning and push protection (founder setup #7) |
 
 ## Recommendation
 Adopted as decisions D-008 to D-012 in `docs/decisions.md`.

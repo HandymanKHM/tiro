@@ -11,6 +11,7 @@ design. Each takes under a minute. Done once, they never need repeating.
 | 4 | Ruleset on `main`: require status checks `check` and `pr-policy`; block force pushes; automatically request Copilot code review, including new pushes | tiro → Settings → Rules → Rulesets → New branch ruleset | Makes the gates binding: nothing broken reaches `main` | Needed |
 | 5 | Allow auto-merge | tiro → Settings → General → Pull Requests | Lets operations queue a merge that completes only when every gate is green | Recommended |
 | 6 | Copilot spending budget | github.com/settings/billing → Budgets | Caps AI-credit spend beyond your plan's included credits | Recommended |
+| 7 | Secret scanning and push protection on | tiro → Settings → Advanced Security | GitHub blocks pushes that contain passwords or keys | Recommended |
 
 ## Decision for you: public or private repository
 

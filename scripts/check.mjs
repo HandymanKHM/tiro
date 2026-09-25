@@ -2,15 +2,17 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('..', import.meta.url).pathname;
+const root = fileURLToPath(new URL('..', import.meta.url));
 const run = (cmd, args, cwd) => spawnSync(cmd, args, { cwd, stdio: 'inherit' }).status === 0;
 
 const results = [['repository tests', run(process.execPath, ['--test', 'tests/**/*.test.js'], root)]];
 
 const productsDir = join(root, 'products');
 if (existsSync(productsDir)) {
-  for (const name of readdirSync(productsDir).sort()) {
+  const dirs = readdirSync(productsDir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort();
+  for (const name of dirs) {
     const pkg = join(productsDir, name, 'package.json');
     if (!existsSync(pkg)) {
       results.push([`products/${name}: missing package.json with a "check" script`, false]);

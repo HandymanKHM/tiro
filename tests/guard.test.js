@@ -7,12 +7,12 @@ const script = new URL('../scripts/agent-guard.sh', import.meta.url).pathname;
 const runHook = (payload) => spawnSync('bash', [script], { input: JSON.stringify(payload), encoding: 'utf8' });
 
 test('secret file detection', () => {
-  for (const p of ['.env', 'app/.env.local', '.env.production', 'deploy/key.pem', 'id_rsa', '/home/u/.ssh/id_ed25519']) assert.ok(isSecretPath(p), p);
-  for (const p of ['.env.example', 'src/env.js', 'docs/.envelope.md', 'README.md', 'keyboard.js']) assert.ok(!isSecretPath(p), p);
+  for (const p of ['.env', 'app/.env.local', '.env.production', 'deploy/key.pem', 'id_rsa', '/home/u/.ssh/id_ed25519', '.env*']) assert.ok(isSecretPath(p), p);
+  for (const p of ['.env.example', 'src/env.js', 'docs/.envelope.md', 'README.md', 'keyboard.js', '/^\\.env(\\..+)?$/']) assert.ok(!isSecretPath(p), p);
 });
 
 test('force push detection', () => {
-  for (const c of ['git push --force', 'git push -f origin main', 'git push --force-with-lease', 'git push origin +main', 'npm test && git push -fu origin x']) assert.ok(isForcePush(c), c);
+  for (const c of ['git push --force', 'git push -f origin main', 'git push --force-with-lease', 'git push origin +main', 'npm test && git push -fu origin x', 'git -C . push --force', 'git -c a=b push -f']) assert.ok(isForcePush(c), c);
   for (const c of ['git push origin feature', 'git push -u origin feature', 'echo force', 'git commit -m "force push later"']) assert.ok(!isForcePush(c), c);
 });
 
@@ -27,6 +27,8 @@ test('Claude Code payloads (tool_input)', () => {
   assert.match(decide({ tool_name: 'Read', tool_input: { file_path: '/repo/.env.local' } }), /secret/);
   assert.equal(decide({ tool_name: 'Edit', tool_input: { file_path: 'AGENTS.md', new_string: 'Never commit .env files' } }), null);
   assert.equal(decide({ tool_name: 'Bash', tool_input: { command: 'cp .env.example .env.sample' } }), null);
+  assert.equal(decide({ tool_name: 'Bash', tool_input: { command: 'git commit -qm "guard: catch .env globs" && git push' } }), null);
+  assert.match(decide({ tool_name: 'Bash', tool_input: { command: 'git commit -m "x" && cat .env' } }), /secret/);
 });
 
 test('hook process: deny exits 2 with Copilot JSON; allow exits 0 silently', () => {

@@ -7,6 +7,8 @@ description: Operations-manager procedure for driving the department - turning f
 You keep work moving so the founder only sees results and genuine decisions.
 
 ## Each run
+0. **Labels**: if `order` or `needs-founder` is missing, run the `labels`
+   workflow (Actions → labels → Run workflow) or create them.
 1. **Orders without an owner**: open issues labelled `order` with no
    assignee and no `needs-founder` label → assign to Copilot cloud agent,
    with the instruction to act as the `lead` agent defined in
@@ -22,8 +24,8 @@ You keep work moving so the founder only sees results and genuine decisions.
    - CI green on the latest commit, including `pr-policy`;
    - latest reviewer verdict is `APPROVE` on the latest commit;
    - no unresolved Copilot code review comment marked as a bug or security issue;
-   - the PR does not touch governance paths (the `pr-policy` summary says
-     `governance: none`);
+   - the `pr-policy` summary says `governance: none` (no governance files and
+     no existing tests changed);
    - the PR is not a draft solely because work is unfinished.
    Otherwise leave it, and if only the founder can unblock it, say so.
 4. **Report** to the founder only what changed: delivered (with "what you can
