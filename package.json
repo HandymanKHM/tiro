@@ -1,0 +1,13 @@
+{
+  "name": "tiro",
+  "private": true,
+  "type": "module",
+  "description": "Tiro's AI development department: agents, rules and quality gates.",
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

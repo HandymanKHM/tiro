@@ -1,0 +1,34 @@
+name: Order
+description: Tell the department what you want. Plain language is perfect.
+title: "Order: "
+labels: ["order"]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What do you want?
+      description: The result you want to see, not how to build it.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: How will you know it's done?
+      description: What you will be able to see or do when it works.
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How urgent?
+      options:
+        - Next up
+        - This week
+        - When there's time
+    validations:
+      required: true
+  - type: textarea
+    id: limits
+    attributes:
+      label: Anything off-limits or already decided? (optional)
+      description: Budget, people it must not contact, things you've already chosen.
