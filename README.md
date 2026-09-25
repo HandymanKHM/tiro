@@ -30,9 +30,7 @@ You press **Merge** to accept, or comment to redirect.
 
 ## Products
 
-| Product | What it does | Status |
-|---|---|---|
-| [Job Request](products/job-request/) | A customer describes a job on their phone; it arrives in your WhatsApp as a neat, complete message. | Built and tested. Needs your WhatsApp number in `products/job-request/config.js` to go live. |
+None yet. The first build is the AI development department itself.
 
 ## Quality gate
 

@@ -3,6 +3,11 @@
 Newest first. Each entry: what was decided, why, and what would change it.
 Tiro delegated all of these on 2026-09-25 ("you make all the good decisions").
 
+## D-007 — Job Request product withdrawn (2026-09-25)
+**Decision:** Removed. D-004, D-005 and D-006 are superseded.
+**Why:** Tiro: keep the founder and the company separate; first build the AI
+development department itself.
+
 ## D-006 — First product: Job Request page (2026-09-25)
 **Decision:** Prove the loop end-to-end with one small, genuinely useful
 product for a handyman business: a mobile page where a customer fills in a job

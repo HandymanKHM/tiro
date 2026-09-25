@@ -2,7 +2,7 @@
 // every future session starts blind, so treat that as a failing build.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
 const read = (p) => readFileSync(new URL(p, root), 'utf8');
@@ -24,18 +24,6 @@ test('manual keeps its essential sections', () => {
   const manual = read('CLAUDE.md');
   for (const heading of ['## The loop', '## Decisions: yours vs. Tiro\'s', '## Definition of done', '## Lessons learned']) {
     assert.ok(manual.includes(heading), `CLAUDE.md lost section: ${heading}`);
-  }
-});
-
-test('every product is listed on the dashboard and has a README', () => {
-  const dashboard = read('README.md');
-  const products = readdirSync(new URL('products/', root), { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name);
-  assert.ok(products.length > 0);
-  for (const name of products) {
-    assert.ok(dashboard.includes(`products/${name}/`), `README.md does not list products/${name}/`);
-    assert.ok(existsSync(new URL(`products/${name}/README.md`, root)), `products/${name} has no README.md`);
   }
 });
 
