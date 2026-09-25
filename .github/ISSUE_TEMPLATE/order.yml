@@ -1,0 +1,35 @@
+name: Order
+description: Tell the team what you want. Plain language is perfect.
+title: "Order: "
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What do you want?
+      description: The result you want to see, not how to build it.
+      placeholder: A customer can request a quote from their phone and I get it on WhatsApp.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: How will you know it's done?
+      description: What you will be able to see or do when it works.
+      placeholder: I open a link on my phone, fill it in, and a complete message lands in my WhatsApp.
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How urgent?
+      options:
+        - Next up
+        - This week
+        - When there's time
+    validations:
+      required: true
+  - type: textarea
+    id: limits
+    attributes:
+      label: Anything off-limits or already decided? (optional)
+      description: Budget, people it must not contact, things you've already chosen.

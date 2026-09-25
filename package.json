@@ -1,0 +1,13 @@
+{
+  "name": "tiro",
+  "private": true,
+  "type": "module",
+  "description": "Tiro HQ: products built by an AI development team, gated by automatic checks.",
+  "scripts": {
+    "check": "node --test \"tests/**/*.test.js\"",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

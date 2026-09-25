@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Request a Job</title>
+  <style>
+    :root {
+      --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6573;
+      --accent: #1a7f4b; --accent-text: #ffffff; --error: #b42318; --border: #d5d9e0;
+      --warn-bg: #fff4e5; --warn-text: #7a4a00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111418; --card: #1b2027; --text: #e8ebef; --muted: #a3acb8;
+        --accent: #2fb56f; --accent-text: #0b1a12; --error: #ff7b72; --border: #333b46;
+        --warn-bg: #3a2a10; --warn-text: #ffd699;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 520px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 20px; }
+    .banner { background: var(--warn-bg); color: var(--warn-text); padding: 10px 12px;
+      border-radius: 8px; margin-bottom: 16px; font-size: .9rem; }
+    form, .preview { background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; }
+    label { display: block; font-weight: 600; margin-top: 14px; }
+    label:first-child { margin-top: 0; }
+    input, select, textarea { width: 100%; margin-top: 4px; padding: 10px 12px;
+      font: inherit; color: inherit; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 8px; }
+    textarea { min-height: 110px; resize: vertical; }
+    [aria-invalid="true"] { border-color: var(--error); }
+    .error { color: var(--error); font-size: .875rem; min-height: 1.2em; }
+    button { width: 100%; margin-top: 20px; padding: 14px; font: inherit; font-weight: 700;
+      background: var(--accent); color: var(--accent-text); border: 0; border-radius: 8px;
+      cursor: pointer; }
+    .preview { margin-top: 20px; }
+    .preview pre { white-space: pre-wrap; word-break: break-word; margin: 8px 0 0;
+      font: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Request a job</h1>
+    <p class="sub">Tell <span id="business-name"></span> what needs fixing. It takes under a minute.</p>
+
+    <p class="banner" id="preview-banner" hidden>
+      Preview mode: no WhatsApp number is set yet, so your request is shown below instead of sent.
+    </p>
+
+    <form id="job-form" novalidate>
+      <label for="name">Your name</label>
+      <input id="name" name="name" autocomplete="name" required>
+      <div class="error" data-error-for="name"></div>
+
+      <label for="phone">Phone number</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="082 123 4567" required>
+      <div class="error" data-error-for="phone"></div>
+
+      <label for="area">Suburb or area</label>
+      <input id="area" name="area" autocomplete="address-level2" required>
+      <div class="error" data-error-for="area"></div>
+
+      <label for="jobType">Type of job</label>
+      <select id="jobType" name="jobType" required><option value="">Choose…</option></select>
+      <div class="error" data-error-for="jobType"></div>
+
+      <label for="urgency">How urgent?</label>
+      <select id="urgency" name="urgency" required><option value="">Choose…</option></select>
+      <div class="error" data-error-for="urgency"></div>
+
+      <label for="description">What needs doing?</label>
+      <textarea id="description" name="description" maxlength="1000" required
+        placeholder="e.g. Geyser leaking from the bottom since this morning."></textarea>
+      <div class="error" data-error-for="description"></div>
+
+      <button type="submit">Send via WhatsApp</button>
+    </form>
+
+    <section class="preview" id="preview" hidden aria-live="polite">
+      <strong>Your request</strong>
+      <pre id="preview-text"></pre>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
