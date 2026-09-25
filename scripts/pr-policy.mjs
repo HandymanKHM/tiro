@@ -19,7 +19,13 @@ export const GOVERNANCE = [
 ];
 
 export const isTestFile = (p) => /(^|\/)tests?\//.test(p) || /\.test\.[cm]?[jt]sx?$/.test(p);
-const DISABLED_TEST = /\b(?:describe|it|test|suite)\.(?:skip|only|todo)\b|\{\s*(?:skip|only|todo)\s*:\s*(?!false\b)\S/;
+// Matches statements, not text inside strings: a line that starts with a skip,
+// only or todo call, or a test call passing { skip | only | todo: <truthy> }.
+const DISABLED_TEST = [
+  /^\s*(?:await\s+)?(?:describe|it|test|suite)\.(?:skip|only|todo)\s*\(/,
+  /^\s*(?:await\s+)?t\.(?:skip|todo)\s*\(/,
+  /^\s*(?:await\s+)?(?:describe|it|test|suite)\s*\(.*\{\s*(?:skip|only|todo)\s*:\s*(?!false\b)\S/,
+];
 
 // changes: [{ status: 'A'|'M'|'D'|'R', path, oldPath? }]
 // addedLines: [{ path, text }] — lines added in the diff
@@ -34,7 +40,7 @@ export function evaluate(changes, addedLines = []) {
     }
   }
   for (const l of addedLines) {
-    if (isTestFile(l.path) && DISABLED_TEST.test(l.text)) {
+    if (isTestFile(l.path) && DISABLED_TEST.some((r) => r.test(l.text))) {
       violations.push(`test skipped or focused in ${l.path}: ${l.text.trim()}`);
     }
   }

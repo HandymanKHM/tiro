@@ -37,6 +37,18 @@ test('newly skipped or focused tests fail', () => {
   }
 });
 
+test('skip calls inside a running test and awaited forms fail', () => {
+  for (const text of ['  t.skip();', "  await test.only('x', f);", "    t.todo('later');"]) {
+    assert.equal(evaluate([{ status: 'A', path: 'tests/a.test.js' }], [{ path: 'tests/a.test.js', text }]).ok, false, text);
+  }
+});
+
+test('skip-like text inside strings or comments in test files is not a skipped test', () => {
+  for (const text of ["  const s = \"test.skip('x')\";", "  for (const t of ['it.only(1)']) {}", '  // test.skip is forbidden']) {
+    assert.equal(evaluate([{ status: 'A', path: 'tests/a.test.js' }], [{ path: 'tests/a.test.js', text }]).ok, true, text);
+  }
+});
+
 test('skip-like text in non-test files and explicit skip:false are fine', () => {
   assert.equal(evaluate([{ status: 'A', path: 'src/a.js' }], [{ path: 'src/a.js', text: 'list.skip(2)' }]).ok, true);
   assert.equal(evaluate([{ status: 'A', path: 'tests/a.test.js' }], [{ path: 'tests/a.test.js', text: "test('x', { skip: false }, f)" }]).ok, true);
