@@ -84,3 +84,6 @@ Format: `- YYYY-MM-DD — what happened → what to do instead.`
 - 2026-09-25 — The first push failed because the Claude GitHub App had no
   access to the repo → at session start, if a push is refused with 403, tell
   Tiro in one line to reconnect GitHub, and keep working locally meanwhile.
+- 2026-09-25 — `git push origin HEAD:main` sent all work straight to `main`,
+  skipping Tiro's sign-off → push only to the work branch; `main` changes
+  only by merging a pull request Tiro approved.
