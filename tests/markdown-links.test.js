@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
@@ -44,10 +44,9 @@ test('reports broken internal markdown file and folder links with file, line, an
     (dir) => {
       const { status, output } = runChecker(dir);
       assert.equal(status, 1, output);
-      assert.match(output, /guide\.md/i);
-      assert.match(output, /2/);
+      assert.match(output, /docs\/guide\.md:2:/);
       assert.match(output, /\.\/missing\.md/);
-      assert.match(output, /3/);
+      assert.match(output, /docs\/guide\.md:3:/);
       assert.match(output, /\.\/missing-folder\//);
     },
   );
@@ -67,8 +66,7 @@ test('reports broken heading fragments while allowing valid fragments in the sam
     (dir) => {
       const { status, output } = runChecker(dir);
       assert.equal(status, 1, output);
-      assert.match(output, /headings\.md/i);
-      assert.match(output, /4/);
+      assert.match(output, /docs\/headings\.md:4:/);
       assert.match(output, /#missing-section/);
       assert.doesNotMatch(output, /#existing-section/);
     },
@@ -118,10 +116,9 @@ test('reports invalid URL encoding as a broken link instead of crashing', () => 
     (dir) => {
       const { status, output } = runChecker(dir);
       assert.equal(status, 1, output);
-      assert.match(output, /encoding\.md/i);
-      assert.match(output, /2/);
+      assert.match(output, /docs\/encoding\.md:2:/);
       assert.match(output, /\.\/bad%ZZ\.md/);
-      assert.match(output, /3/);
+      assert.match(output, /docs\/encoding\.md:3:/);
       assert.match(output, /#frag%ZZ/);
       assert.doesNotMatch(output, /URIError/i);
     },
@@ -153,10 +150,100 @@ test('resolves heading fragments on directory links via README.md', () => {
     (dir) => {
       const { status, output } = runChecker(dir);
       assert.equal(status, 1, output);
-      assert.match(output, /index\.md/i);
-      assert.match(output, /2/);
+      assert.match(output, /docs\/index\.md:2:/);
       assert.match(output, /\.\/guide\/#missing/);
       assert.doesNotMatch(output, /#start-here/);
+    },
+  );
+});
+
+test('ignores links and headings inside fenced and inline code', () => {
+  withMarkdownFixture(
+    {
+      'docs/code.md': [
+        '```md',
+        '[example](./missing.md)',
+        '# Not a heading',
+        '```',
+        'Use `[inline](./missing-inline.md)` as an example.',
+        '[valid](./code.md#real-heading)',
+        '# Real Heading',
+      ].join('\n'),
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 0, output);
+    },
+  );
+});
+
+test('checks reference-style links', () => {
+  withMarkdownFixture(
+    {
+      'docs/ref.md': [
+        'See [example][ref].',
+        '[ref]: ./missing.md',
+      ].join('\n'),
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 1, output);
+      assert.match(output, /docs\/ref\.md:2:/);
+      assert.match(output, /\[ref\]: \.\/missing\.md|\.\/missing\.md/);
+    },
+  );
+});
+
+test('supports duplicate heading suffixes and setext headings', () => {
+  withMarkdownFixture(
+    {
+      'docs/headings.md': [
+        'Title',
+        '=====',
+        '## Example',
+        '## Example',
+        '[setext](./headings.md#title)',
+        '[second](./headings.md#example-1)',
+      ].join('\n'),
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 0, output);
+    },
+  );
+});
+
+test('does not resolve links outside repository root and does not auto-append .md', () => {
+  withMarkdownFixture(
+    {
+      'docs/a.md': [
+        '[outside](../outside.md)',
+        '[no-fallback](./foo)',
+      ].join('\n'),
+      'outside.md': '# external',
+      'docs/foo.md': '# existing markdown file only',
+    },
+    (dir) => {
+      const { status, output } = runChecker(join(dir, 'docs'));
+      assert.equal(status, 1, output);
+      assert.match(output, /a\.md:1:/);
+      assert.match(output, /\.\.\/outside\.md/);
+      assert.match(output, /a\.md:2:/);
+      assert.match(output, /\.\/foo/);
+    },
+  );
+});
+
+test('skips symlink loops while scanning markdown files', () => {
+  withMarkdownFixture(
+    {
+      'docs/readme.md': '# Readme\n[ok](./readme.md)',
+    },
+    (dir) => {
+      symlinkSync(join(dir, 'docs'), join(dir, 'docs', 'loop'));
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 0, output);
+      assert.doesNotMatch(output, /ELOOP|too many symbolic links/i);
     },
   );
 });
