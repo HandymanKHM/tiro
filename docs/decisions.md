@@ -3,6 +3,14 @@
 Newest first. Each entry: what was decided, why, and what would change it.
 The founder delegated these decisions on 2026-09-25.
 
+## D-013 — Founding PR merged by Claude under the founder's delegation (2026-09-25)
+**Decision:** The PR that creates the department is merged by the building
+Claude session after an independent APPROVE and green CI, although D-011 makes
+governance changes founder-merge only.
+**Why:** D-011 cannot apply before the department exists, and the founder
+explicitly delegated this ("going forward, I don't see you needing my
+intervention"). From this merge on, D-011 applies without exception.
+
 ## D-012 — Operations manager is a Claude Code role (2026-09-25)
 **Decision:** Dispatching orders, chasing fixes and merging under policy is
 done by Claude Code sessions following the `operations` skill, acting through
