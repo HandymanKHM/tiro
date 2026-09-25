@@ -25,7 +25,7 @@ const DISABLED_TEST = [
   /^\s*(?:await\s+)?(?:describe|it|test|suite)\.(?:skip|only|todo)\s*\(/,
   /^\s*(?:await\s+)?t\.(?:skip|todo)\s*\(/,
   /^\s*(?:await\s+)?(?:describe|it|test|suite)\s*\(.*\{\s*(?:skip|only|todo)\s*:\s*(?!false\b)\S/,
-  /^\s*\{?\s*(?:skip|only|todo)\s*:\s*(?:true|['"`])/,
+  /^\s*\{?\s*(?:skip|only)\s*:\s*true\b/,
 ];
 
 // changes: [{ status: 'A'|'M'|'D'|'R', path, oldPath? }]

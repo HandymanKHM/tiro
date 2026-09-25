@@ -26,7 +26,7 @@ export function isForcePush(command) {
   return String(command)
     .split(/&&|\|\||;|\n/)
     .some((part) => {
-      const t = part.split(/[\s'"`]+/).filter(Boolean);
+      const t = part.split(/[\s'"`()|]+/).filter(Boolean);
       let i = t.indexOf('git');
       if (i === -1) return false;
       i += 1;

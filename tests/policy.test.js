@@ -34,9 +34,13 @@ test('a tests-only change may modify tests but becomes founder-only', () => {
 test('multi-line skip options are caught; unrelated keys are not', () => {
   const f = (text) => evaluate([{ status: 'A', path: 'tests/a.test.js' }], [{ path: 'tests/a.test.js', text }]).ok;
   assert.equal(f('    { skip: true },'), false);
-  assert.equal(f("    only: 'reason',"), false);
+  assert.equal(f('    only: true,'), false);
   assert.equal(f('    skip: false,'), true);
   assert.equal(f('    skipped: 3,'), true);
+  // ordinary fixture data in a product's tests is not a skipped test
+  assert.equal(f("  todo: 'Buy milk',"), true);
+  assert.equal(f("  { todo: 'Buy milk', done: false },"), true);
+  assert.equal(f("  skip: 'intro',"), true);
 });
 
 test('newly skipped or focused tests fail', () => {

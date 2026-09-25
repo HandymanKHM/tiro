@@ -12,7 +12,7 @@ test('secret file detection', () => {
 });
 
 test('force push detection', () => {
-  for (const c of ['git push --force', 'git push -f origin main', 'git push --force-with-lease', 'git push origin +main', 'npm test && git push -fu origin x', 'git -C . push --force', 'git -c a=b push -f']) assert.ok(isForcePush(c), c);
+  for (const c of ['git push --force', 'git push -f origin main', 'git push --force-with-lease', 'git push origin +main', 'npm test && git push -fu origin x', 'git -C . push --force', 'git -c a=b push -f', 'true|git push -f', '(git push -f)']) assert.ok(isForcePush(c), c);
   for (const c of ['git push origin feature', 'git push -u origin feature', 'echo force', 'git commit -m "force push later"']) assert.ok(!isForcePush(c), c);
 });
 
