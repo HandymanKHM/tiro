@@ -92,6 +92,28 @@ test('ignores website links using http and https schemes', () => {
   );
 });
 
+test('reports invalid URL encoding as a broken link instead of crashing', () => {
+  withMarkdownFixture(
+    {
+      'docs/encoding.md': [
+        '# Encoding',
+        '[bad-path](./bad%ZZ.md)',
+        '[bad-fragment](./encoding.md#frag%ZZ)',
+      ].join('\n'),
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 1, output);
+      assert.match(output, /encoding\.md/i);
+      assert.match(output, /2/);
+      assert.match(output, /\.\/bad%ZZ\.md/);
+      assert.match(output, /3/);
+      assert.match(output, /#frag%ZZ/);
+      assert.doesNotMatch(output, /URIError/i);
+    },
+  );
+});
+
 test('finds no markdown-link issues when run against the current repository markdown', () => {
   // Criterion 4
   const { status, output } = runChecker(repoRoot);

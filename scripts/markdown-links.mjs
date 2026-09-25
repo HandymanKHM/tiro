@@ -6,6 +6,13 @@ const HEADING_RE = /^(#{1,6})\s+(.*)$/;
 const LINK_RE = /!?\[[^\]]*\]\(([^\n)]+)\)/g;
 
 const toPosix = (p) => p.split('\\').join('/');
+const safeDecode = (value) => {
+  try {
+    return { ok: true, value: decodeURIComponent(value) };
+  } catch {
+    return { ok: false, value };
+  }
+};
 
 function slugifyHeading(text) {
   return text
@@ -86,8 +93,14 @@ export function checkMarkdownLinks(targetPath) {
 
         if (/^[a-z][a-z0-9+.-]*:/i.test(pathPart)) continue;
 
+        const decodedPath = safeDecode(pathPart);
+        if (!decodedPath.ok) {
+          problems.push({ filePath, line: i + 1, link: rawLink, reason: 'invalid URL encoding' });
+          continue;
+        }
+
         const targetFile = pathPart
-          ? resolve(filePath, '..', decodeURIComponent(pathPart))
+          ? resolve(filePath, '..', decodedPath.value)
           : filePath;
 
         if (pathPart && !existsSync(targetFile)) {
@@ -96,7 +109,12 @@ export function checkMarkdownLinks(targetPath) {
         }
 
         if (fragment) {
-          const fragmentSlug = slugifyHeading(decodeURIComponent(fragment));
+          const decodedFragment = safeDecode(fragment);
+          if (!decodedFragment.ok) {
+            problems.push({ filePath, line: i + 1, link: rawLink, reason: 'invalid URL encoding' });
+            continue;
+          }
+          const fragmentSlug = slugifyHeading(decodedFragment.value);
           if (extname(targetFile).toLowerCase() === '.md' && !headingsFor(targetFile).has(fragmentSlug)) {
             problems.push({ filePath, line: i + 1, link: rawLink, reason: 'heading not found' });
           }
