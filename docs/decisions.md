@@ -1,47 +1,59 @@
 # Decision log
 
 Newest first. Each entry: what was decided, why, and what would change it.
-Tiro delegated all of these on 2026-09-25 ("you make all the good decisions").
+The founder delegated these decisions on 2026-09-25.
+
+## D-012 — Operations manager is a Claude Code role (2026-09-25)
+**Decision:** Dispatching orders, chasing fixes and merging under policy is
+done by Claude Code sessions following the `operations` skill, acting through
+the founder's GitHub connection.
+**Why:** Assigning Copilot and posting `@copilot` requests from a GitHub
+workflow requires a personal access token; the Copilot cloud agent cannot
+merge or approve its own work. A Claude Code operations run does both without
+storing any new secret.
+**Revisit if:** the founder wants fully in-GitHub automation; then a
+fine-grained token and GitHub Agentic Workflows replace this role.
+
+## D-011 — Governance changes are merged by the founder only (2026-09-25)
+**Decision:** PRs touching AGENTS.md, CLAUDE.md, `.github/**`, `.claude/**`,
+the policy/guard/check scripts or their tests are never merged automatically.
+**Why:** Agents must not be able to rewrite their own guardrails; this is the
+main structural defence against reward hacking.
+
+## D-010 — Tests are the contract; CI forbids weakening them (2026-09-25)
+**Decision:** Tests are written before code by a separate role. `pr-policy`
+fails any PR that modifies, deletes or renames an existing test alongside
+source changes, or newly skips/focuses a test.
+**Why:** Deleting or editing tests to get green is the best-documented
+failure of coding agents (METR 2025; ImpossibleBench, arXiv 2510.20270).
+
+## D-009 — Independent reviewer in a fresh context, plus Copilot code review (2026-09-25)
+**Decision:** Every change is reviewed by the `reviewer` role, which sees only
+the order, plan and diff, verifies each finding, and returns a verdict. Copilot
+code review is a second, separately configured gate.
+**Why:** Self-review is biased toward the model's own output; a fresh
+verifier outperforms self-critique (Anthropic best-practices docs).
+
+## D-008 — One manual for all engines: AGENTS.md (2026-09-25)
+**Decision:** AGENTS.md holds the rules; CLAUDE.md imports it;
+`.github/copilot-instructions.md` points to it; skills live in
+`.github/skills` with `.claude/skills` linking there.
+**Why:** Copilot cloud agent, Copilot code review and Claude Code each read
+different files (see docs/research). One source avoids drift.
 
 ## D-007 — Job Request product withdrawn (2026-09-25)
-**Decision:** Removed. D-004, D-005 and D-006 are superseded.
-**Why:** Tiro: keep the founder and the company separate; first build the AI
-development department itself.
-
-## D-006 — First product: Job Request page (2026-09-25)
-**Decision:** Prove the loop end-to-end with one small, genuinely useful
-product for a handyman business: a mobile page where a customer fills in a job
-request, which opens WhatsApp with a complete, well-formatted message to the
-business.
-**Why:** Incomplete job details cost call-backs. This needs no server, no
-database, no stored customer data and no monthly cost, so it is safe to build
-without CEO-only decisions.
-**Revisit if:** Tiro wants requests stored, tracked or assigned — that needs a
-backend and a customer-data decision.
-
-## D-005 — WhatsApp number left empty until Tiro supplies it (2026-09-25)
-**Decision:** `config.js` ships with an empty number. The page runs in a
-clearly labelled preview mode (shows the message instead of sending it).
-**Why:** Guessing a phone number would route customers to a stranger.
-
-## D-004 — No hosting yet (2026-09-25)
-**Decision:** The page is a static file; no public hosting set up.
-**Why:** Publishing is a CEO decision. Once approved, GitHub Pages or any
-static host works with zero changes.
+**Decision:** Removed. D-004 to D-006 are superseded.
+**Why:** Founder: keep the founder and the company separate; build the
+department first.
 
 ## D-003 — Zero dependencies (2026-09-25)
-**Decision:** Plain HTML/CSS/JS; tests use Node's built-in `node --test`.
-**Why:** Nothing to install, nothing to break, nothing to patch. Cheapest
-possible maintenance for a team with no memory.
+**Decision:** Plain Node.js; tests use the built-in `node --test`.
+**Why:** Nothing to install, patch or hallucinate. Revisit per product.
 
 ## D-002 — One command is the quality gate (2026-09-25)
-**Decision:** `npm run check` runs every test; CI runs the same command on
-every push and pull request.
-**Why:** Tiro doesn't read code, so a machine must refuse broken work.
-Same command locally and in CI means no "works on my machine".
+**Decision:** `npm run check` runs every test and every product's check; CI
+runs the same command.
 
-## D-001 — Fresh start; `main` is the accepted record (2026-09-25)
-**Decision:** Nothing from earlier systems is reused. `main` holds only work
-Tiro has accepted; all work arrives via pull requests.
-**Why:** Tiro's instruction: start clean in this repo. Pull requests give him
-one place to see, try and accept each piece of work.
+## D-001 — Fresh start; `main` holds only accepted work (2026-09-25)
+**Decision:** Nothing from earlier systems is reused; all work reaches
+`main` through pull requests.

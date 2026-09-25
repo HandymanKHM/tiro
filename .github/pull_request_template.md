@@ -1,15 +1,18 @@
-## What this delivers
-<!-- One or two sentences, outcome first. Link the order: "Order #N". -->
+## What you can now do
+<!-- For the founder: plain language, outcome first. Link the order: "Closes #N". -->
 
-## Try it
-<!-- Exact steps Tiro can follow to see it working. -->
+## Plan
+<!-- Outcome, numbered acceptance criteria, in scope, out of scope. -->
 
 ## Proof
-- [ ] `npm run check` passes locally and in CI
-- [ ] Tried it the way Tiro would (describe what you saw)
+<!-- Each acceptance criterion → the test or command that proves it.
+Paste the final lines of: npm run check  and  node scripts/pr-policy.mjs origin/main -->
 
-## Decisions made for you
-<!-- Each one also logged in docs/decisions.md. Write "None" if none. -->
+## Independent review
+<!-- The reviewer's latest VERDICT line and its tally. -->
 
-## Needs your decision
-<!-- Money, publishing, customer data, irreversible steps. Write "None" if none. -->
+## Decisions made on your behalf
+<!-- Each also in docs/decisions.md. "None" if none. -->
+
+## Needs the founder
+<!-- Only founder-only decisions from AGENTS.md. "None" if none. -->

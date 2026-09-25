@@ -1,37 +1,40 @@
-# Tiro HQ
+# Tiro — AI development department
 
-This repository is where Tiro's ideas become working products. Tiro gives the
-order; the AI development team builds, tests and delivers; Tiro accepts by
-using the result. No code reading required.
+A standing team of AI agents that takes an outcome from the founder and
+returns a working, independently reviewed, evidence-backed result.
 
-## How to give an order
+## Give an order
 
-1. Go to **Issues → New issue → Order**.
-2. Fill in two things: **what you want** and **how you'll know it's done**.
-3. Start a Claude Code session on this repo and say: *"Work on order #N."*
+**Issues → New issue → Order.** Two required questions: what you want, and
+how you'll know it's done. The department plans it, writes the tests first,
+builds it, reviews it independently, and opens a pull request. You get a
+plain-language "what you can now do" with proof.
 
-## What you get back
+## The team
 
-A **pull request** (a "finished work, please sign off" package) with:
-- **Try it** — exactly how to see it working yourself.
-- **Proof** — the automatic checks that passed.
-- **Decisions made for you** — so nothing happens behind your back.
+| Role | Job | Can change files? |
+|---|---|---|
+| Lead | Runs each order end to end, delegates, assembles the evidence | Yes |
+| Planner | Turns the order into checkable acceptance criteria and scope | No |
+| Tester | Writes the tests that define "done" before any code exists | Tests only (by rule) |
+| Coder | Smallest change that makes those tests pass | Yes, within scope |
+| Reviewer | Independent verdict with verified findings; never saw the coder's reasoning | No |
+| Researcher | Sourced research; every claim has a link or is marked unverified | Reports only |
+| Operations | Dispatches orders, chases fixes, merges under policy, reports to you | Merges only |
 
-You press **Merge** to accept, or comment to redirect.
+Plus two automatic gates no agent can talk its way past: the **check** (every
+test, every product) and the **PR policy** (no weakening existing tests).
 
-## Your four jobs
+## What reaches you
 
-| You decide | Everything else |
-|---|---|
-| What outcome you want and what "done" means | The team decides and writes |
-| What comes first | down why in `docs/decisions.md` |
-| Accept or reject by trying it | |
-| Money, publishing, customer data, anything irreversible | |
+Only: delivered results, and decisions that are genuinely yours (money,
+publishing, real people's data, irreversible steps, changes to the
+department's own rules). Issues needing you carry the label `needs-founder`.
 
-## Products
+## Where things live
 
-None yet. The first build is the AI development department itself.
-
-## Quality gate
-
-Every change runs `npm run check` automatically. Broken work can't pass.
+- `AGENTS.md` — the department's operating manual and shared memory.
+- `docs/decisions.md` — every decision made on your behalf, with the reason.
+- `docs/research/` — what the department has verified about the world.
+- `docs/founder-setup.md` — the few switches only your account can flip.
+- `products/` — what the department builds for you (none yet).

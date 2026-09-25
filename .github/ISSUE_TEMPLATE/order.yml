@@ -1,13 +1,13 @@
 name: Order
-description: Tell the team what you want. Plain language is perfect.
+description: Tell the department what you want. Plain language is perfect.
 title: "Order: "
+labels: ["order"]
 body:
   - type: textarea
     id: outcome
     attributes:
       label: What do you want?
       description: The result you want to see, not how to build it.
-      placeholder: A customer can request a quote from their phone and I get it on WhatsApp.
     validations:
       required: true
   - type: textarea
@@ -15,7 +15,6 @@ body:
     attributes:
       label: How will you know it's done?
       description: What you will be able to see or do when it works.
-      placeholder: I open a link on my phone, fill it in, and a complete message lands in my WhatsApp.
     validations:
       required: true
   - type: dropdown
