@@ -127,7 +127,7 @@ export function checkMarkdownLinks(targetPath) {
       const line = lines[i];
       for (const raw of extractDestinations(line)) {
         const rawLink = parseDestination(raw);
-        if (!rawLink || rawLink.startsWith('http://') || rawLink.startsWith('https://')) continue;
+        if (!rawLink || rawLink.startsWith('http://') || rawLink.startsWith('https://') || rawLink.startsWith('//')) continue;
 
         const [pathPart, fragment = ''] = rawLink.split('#', 2);
 
@@ -139,7 +139,12 @@ export function checkMarkdownLinks(targetPath) {
           continue;
         }
 
-        const pathCandidate = pathPart ? resolve(filePath, '..', decodedPath.value) : filePath;
+        const decodedPathValue = decodedPath.value;
+        const pathCandidate = !pathPart
+          ? filePath
+          : decodedPathValue.startsWith('/')
+            ? resolve(root, `.${decodedPathValue}`)
+            : resolve(filePath, '..', decodedPathValue);
         const targetFile = !pathPart || existsSync(pathCandidate) ? pathCandidate : `${pathCandidate}.md`;
 
         if (pathPart && !existsSync(targetFile)) {

@@ -83,7 +83,21 @@ test('ignores website links using http and https schemes', () => {
         '# Links',
         '[http-link](http://example.com/missing)',
         '[https-link](https://example.com/missing#frag)',
+        '[protocol-relative](//example.com/missing)',
       ].join('\n'),
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 0, output);
+    },
+  );
+});
+
+test('supports root-relative markdown links from repository root', () => {
+  withMarkdownFixture(
+    {
+      'docs/target.md': '# Target',
+      'docs/start.md': '[target](/docs/target.md)',
     },
     (dir) => {
       const { status, output } = runChecker(dir);
