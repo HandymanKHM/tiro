@@ -3,7 +3,6 @@ import { extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const HEADING_RE = /^(#{1,6})\s+(.*)$/;
-const LINK_RE = /!?\[[^\]]*\]\(([^\n)]+)\)/g;
 
 const toPosix = (p) => p.split('\\').join('/');
 const safeDecode = (value) => {
@@ -43,8 +42,49 @@ function parseDestination(raw) {
     const end = trimmed.indexOf('>');
     return end === -1 ? trimmed : trimmed.slice(1, end);
   }
-  const ws = trimmed.search(/\s/);
-  return ws === -1 ? trimmed : trimmed.slice(0, ws);
+  return trimmed.replace(/\s+(?:"[^"]*"|'[^']*'|\([^)]*\))\s*$/, '');
+}
+
+function extractDestinations(line) {
+  const out = [];
+  let searchFrom = 0;
+  while (searchFrom < line.length) {
+    const open = line.indexOf('](', searchFrom);
+    if (open === -1) break;
+    let i = open + 2;
+    let depth = 1;
+    while (i < line.length) {
+      const ch = line[i];
+      if (ch === '\\') {
+        i += 2;
+        continue;
+      }
+      if (ch === '(') depth += 1;
+      if (ch === ')') {
+        depth -= 1;
+        if (depth === 0) break;
+      }
+      i += 1;
+    }
+    if (depth === 0) {
+      out.push(line.slice(open + 2, i));
+      searchFrom = i + 1;
+    } else {
+      searchFrom = open + 2;
+    }
+  }
+  return out;
+}
+
+function resolveMarkdownTargetForFragment(targetFile) {
+  if (extname(targetFile).toLowerCase() === '.md') return targetFile;
+  if (existsSync(targetFile) && statSync(targetFile).isDirectory()) {
+    for (const name of ['README.md', 'readme.md', 'index.md']) {
+      const candidate = join(targetFile, name);
+      if (existsSync(candidate)) return candidate;
+    }
+  }
+  return null;
 }
 
 function getMarkdownFiles(targetPath) {
@@ -85,8 +125,8 @@ export function checkMarkdownLinks(targetPath) {
     const lines = readFile(filePath).split('\n');
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i];
-      for (const match of line.matchAll(LINK_RE)) {
-        const rawLink = parseDestination(match[1]);
+      for (const raw of extractDestinations(line)) {
+        const rawLink = parseDestination(raw);
         if (!rawLink || rawLink.startsWith('http://') || rawLink.startsWith('https://')) continue;
 
         const [pathPart, fragment = ''] = rawLink.split('#', 2);
@@ -99,9 +139,8 @@ export function checkMarkdownLinks(targetPath) {
           continue;
         }
 
-        const targetFile = pathPart
-          ? resolve(filePath, '..', decodedPath.value)
-          : filePath;
+        const pathCandidate = pathPart ? resolve(filePath, '..', decodedPath.value) : filePath;
+        const targetFile = !pathPart || existsSync(pathCandidate) ? pathCandidate : `${pathCandidate}.md`;
 
         if (pathPart && !existsSync(targetFile)) {
           problems.push({ filePath, line: i + 1, link: rawLink, reason: 'target does not exist' });
@@ -115,7 +154,12 @@ export function checkMarkdownLinks(targetPath) {
             continue;
           }
           const fragmentSlug = slugifyHeading(decodedFragment.value);
-          if (extname(targetFile).toLowerCase() === '.md' && !headingsFor(targetFile).has(fragmentSlug)) {
+          const markdownTarget = resolveMarkdownTargetForFragment(targetFile);
+          if (!markdownTarget) {
+            problems.push({ filePath, line: i + 1, link: rawLink, reason: 'heading target is not markdown' });
+            continue;
+          }
+          if (!headingsFor(markdownTarget).has(fragmentSlug)) {
             problems.push({ filePath, line: i + 1, link: rawLink, reason: 'heading not found' });
           }
         }

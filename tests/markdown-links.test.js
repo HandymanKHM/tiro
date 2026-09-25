@@ -114,6 +114,39 @@ test('reports invalid URL encoding as a broken link instead of crashing', () => 
   );
 });
 
+test('accepts valid local markdown paths with spaces and parentheses', () => {
+  withMarkdownFixture(
+    {
+      'docs/Guide (v2).md': '# Guide v2',
+      'docs/index.md': '[guide](./Guide (v2).md)',
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 0, output);
+    },
+  );
+});
+
+test('resolves heading fragments on directory links via README.md', () => {
+  withMarkdownFixture(
+    {
+      'docs/guide/README.md': '# Guide Home\n## Start Here',
+      'docs/index.md': [
+        '[valid](./guide/#start-here)',
+        '[broken](./guide/#missing)',
+      ].join('\n'),
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 1, output);
+      assert.match(output, /index\.md/i);
+      assert.match(output, /2/);
+      assert.match(output, /\.\/guide\/#missing/);
+      assert.doesNotMatch(output, /#start-here/);
+    },
+  );
+});
+
 test('finds no markdown-link issues when run against the current repository markdown', () => {
   // Criterion 4
   const { status, output } = runChecker(repoRoot);
