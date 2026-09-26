@@ -1,9 +1,15 @@
-// PR policy enforced in CI and runnable locally: `node scripts/pr-policy.mjs <base-ref>`.
+// PR policy enforced in CI and runnable locally:
+//   node scripts/pr-policy.mjs <base-ref> [<head-ref>]   (head defaults to HEAD)
 // - Test integrity: existing tests may not be modified, deleted or renamed in a
 //   change that also touches non-test files, and no test may be newly skipped
 //   or focused (.skip / .only / todo). Violations fail the check.
 // - Governance: changes to the department's own rules are reported so that
 //   operations never merges them automatically; they do not fail the check.
+// - Execution-sensitive: changes to workflow definitions, actions, or agent
+//   execution controls are reported so that operations never releases held
+//   workflow runs for them (founder decision); they do not fail the check.
+//   Operations evaluates this with the trusted copy of this script on main,
+//   passing the PR's head ref, before any held workflow run is released.
 import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -14,8 +20,18 @@ export const GOVERNANCE = [
   /^\.github\//,
   /^\.claude\//,
   /^scripts\/(pr-policy|agent-guard|check)\./,
-  /^tests\/(policy|guard|repo)\.test\.js$/,
+  /^tests\/(policy|guard|repo)[\w-]*\.test\.js$/,
   /^package\.json$/,
+  /^docs\/founder-actions\//,
+];
+
+export const EXECUTION_SENSITIVE = [
+  /^\.github\/workflows\//,
+  /^\.github\/actions\//,
+  /(^|\/)action\.ya?ml$/,
+  /^\.github\/hooks\//,
+  /^\.claude\/settings(\.local)?\.json$/,
+  /^\.github\/dependabot\.ya?ml$/,
 ];
 
 export const isTestFile = (p) => /(^|\/)(tests?|__tests__)\//.test(p) || /\.(test|spec)\.[cm]?[jt]sx?$/.test(p);
@@ -52,7 +68,8 @@ export function evaluate(changes, addedLines = []) {
     ...changes.flatMap((c) => [c.path, c.oldPath]).filter((p) => p && GOVERNANCE.some((r) => r.test(p))),
     ...testsChanged,
   ])];
-  return { ok: violations.length === 0, violations, governance, testsChanged };
+  const executionSensitive = [...new Set(changes.flatMap((c) => [c.path, c.oldPath]).filter((p) => p && EXECUTION_SENSITIVE.some((r) => r.test(p))))];
+  return { ok: violations.length === 0, violations, governance, testsChanged, executionSensitive };
 }
 
 export function parseNameStatus(text) {
@@ -75,17 +92,20 @@ export function parseAddedLines(diff) {
 
 function main() {
   const base = process.argv[2] ?? 'origin/main';
+  const head = process.argv[3] ?? 'HEAD';
   const git = (...args) => execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  const range = `${base}...HEAD`;
+  const range = `${base}...${head}`;
   const result = evaluate(parseNameStatus(git('diff', '--name-status', '-M', range)), parseAddedLines(git('diff', '-U0', range)));
 
   const report = [
-    `## PR policy against ${base}`,
+    `## PR policy: ${base}...${head}`,
     `test integrity: ${result.ok ? 'pass' : 'FAIL'}`,
     ...result.violations.map((v) => `- ${v}`),
     `tests changed: ${result.testsChanged.length ? result.testsChanged.join(', ') : 'none'}`,
     `governance: ${result.governance.length ? result.governance.join(', ') : 'none'}`,
     result.governance.length ? '(governance changes are merged by the founder only)' : '',
+    `execution-sensitive: ${result.executionSensitive.length ? result.executionSensitive.join(', ') : 'none'}`,
+    result.executionSensitive.length ? '(held workflow runs are not released by operations; needs-founder)' : '',
   ].filter(Boolean).join('\n');
   console.log(report);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, report + '\n');

@@ -30,4 +30,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node scripts/pr-policy.mjs "origin/${{ github.base_ref }}"
+      # Run the trusted copy of the policy from the base branch, so a PR
+      # cannot turn this check green by editing the policy script itself.
+      - run: |
+          git show "origin/${{ github.base_ref }}:scripts/pr-policy.mjs" > "$RUNNER_TEMP/pr-policy.mjs"
+          node "$RUNNER_TEMP/pr-policy.mjs" "origin/${{ github.base_ref }}" HEAD

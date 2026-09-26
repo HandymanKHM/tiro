@@ -51,6 +51,10 @@ An **order** is a GitHub issue created from the Order form: an outcome plus
 4. **Independent review** (`reviewer`, fresh context, never the author):
    verdict `APPROVE` or `CHANGES REQUIRED` with evidence. Fix and re-review
    until `APPROVE`. Maximum three rounds, then escalate with findings.
+   This in-session review is the builder's own quality step before handing
+   over; it is not a merge gate. Before merge, operations runs an **outside
+   review** (different model, fresh context) of the head commit, and only
+   that verdict counts (D-014).
 5. **Evidence**: the PR description uses the template; every claim cites the
    command that was run and its output.
 6. **Gates**: CI (`check` and `pr-policy`) and Copilot code review.
@@ -64,7 +68,8 @@ UNVERIFIED.
 
 - Every acceptance criterion is proven by a test or a recorded command.
 - `npm run check` passes locally and in CI; `pr-policy` passes.
-- The reviewer's latest verdict is `APPROVE`.
+- The outside reviewer's latest verdict is `APPROVE` on the latest commit.
+  The builder's own in-session review does not count toward done (D-014).
 - The PR explains in plain language what the founder can now do, and how to
   try it.
 - Nothing outside the declared scope changed.
@@ -84,11 +89,24 @@ your recommendation) for **Founder-only decisions**:
 - Publishing outside this repository, or contacting any person or company.
 - Handling personal data of real people, credentials, or payment details.
 - Irreversible actions: deleting history, force-pushing, deleting repositories.
+- Repository administration: visibility, licensing, rulesets, Actions and
+  Copilot security settings (workflow approval stays on, D-016).
+- Releasing a held workflow run for a PR that changes workflow definitions,
+  actions, hooks or other execution controls (`execution-sensitive` in
+  `pr-policy`).
 - Changing governance files or existing tests — allowed in a PR, but such
   PRs are merged only by the founder. Governance files are listed in
   `GOVERNANCE` in `scripts/pr-policy.mjs` (this file, CLAUDE.md, `.github/**`,
-  `.claude/**`, the check/policy/guard scripts and their tests, package.json).
+  `.claude/**`, the check/policy/guard scripts and their tests, package.json,
+  `docs/founder-actions/**`).
 - Two reasonable readings of an order that lead to materially different results.
+
+When a founder-only action cannot be performed with the department's
+authorized tools, deliver a **founder action package** (skill
+`founder-action-package`): one tested, placeholder-free terminal block that
+preflights, performs only the approved scope, reads GitHub back and prints
+`RESULT: PASS` or `RESULT: FAIL`. Never send him website instructions when a
+CLI or API path exists. A wrong package is the department's failure.
 
 🚫 Never
 - Edit, delete, skip or weaken an existing test to make a change pass. If a
@@ -111,3 +129,17 @@ Add one line whenever something went wrong or took longer than it should:
 - 2026-09-25 — Configuration written from memory was wrong in places → check
   current official documentation (see `docs/research/`) before configuring
   any platform feature.
+- 2026-09-26 — Order #2: the builder's in-session reviewer approved work with
+  3 real defects; an outside reviewer on a different model caught them, and
+  one fix introduced a regression it also caught → an outside review of the
+  latest commit is mandatory before merge (operations skill).
+- 2026-09-26 — CI on Copilot PRs waits as `action_required` until approved →
+  operations re-runs it under the founder's authority, but only after the
+  trusted `pr-policy` on `main` reports `execution-sensitive: none`; the
+  approval boundary itself stays on (D-016).
+- 2026-09-26 — Operations told the founder to click through GitHub's website
+  → founder-only actions are delivered as tested terminal packages
+  (`founder-action-package` skill).
+- 2026-09-26 — A PR summary can drift from the evidence → its review section
+  must quote the latest `OUTSIDE REVIEW:` line and SHA; never say APPROVE
+  when the latest outside verdict is CHANGES REQUIRED.
