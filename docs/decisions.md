@@ -3,6 +3,14 @@
 Newest first. Each entry: what was decided, why, and what would change it.
 The founder delegated these decisions on 2026-09-25.
 
+## D-014 — Outside review is mandatory before merge (2026-09-26)
+**Decision:** No PR merges on the builder's own review verdict. Operations
+runs a fresh reviewer on a different model against the latest commit, and
+only its APPROVE counts.
+**Why:** Live order #2: Copilot's in-session reviewer approved code with 3
+Important defects; the outside reviewer found them and later a regression
+introduced by a fix. Evidence: HandymanKHM/tiro#3.
+
 ## D-013 — Founding PR merged by Claude under the founder's delegation (2026-09-25)
 **Decision:** The PR that creates the department is merged by the building
 Claude session after an independent APPROVE and green CI, although D-011 makes

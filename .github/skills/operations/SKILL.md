@@ -16,13 +16,21 @@ You keep work moving so the founder only sees results and genuine decisions.
 2. **Open pull requests**: for each, read CI status, the `pr-policy` result,
    Copilot code review comments, and the latest `VERDICT:` line from the
    reviewer.
+   - Wait until `get_copilot_job_status` shows every session `completed`
+     before judging a PR; mid-session commits are not the delivery.
+   - Checks showing `action_required` on an agent PR: re-run that workflow
+     run once per commit (runs under the founder's account and executes).
+   - **Outside review is mandatory**: run a fresh reviewer (a different model
+     from the builder, e.g. a Claude subagent with the `code-review` skill,
+     given only the order, the diff and a scratch copy of the branch). The
+     builder's in-session verdict does not count toward the merge policy.
    - CI red, or unresolved review findings, or verdict CHANGES REQUIRED →
      comment `@copilot` with the specific findings to fix (one comment,
      listing each). Do not repeat a request already made on the same commit.
    - Three fix rounds without progress → label `needs-founder` and summarise.
 3. **Merge policy** — merge (squash) only when ALL hold:
    - CI green on the latest commit, including `pr-policy`;
-   - latest reviewer verdict is `APPROVE` on the latest commit;
+   - the outside reviewer's latest verdict is `APPROVE` on the latest commit;
    - no unresolved Copilot code review comment marked as a bug or security issue;
    - the `pr-policy` summary says `governance: none` (no governance files and
      no existing tests changed);

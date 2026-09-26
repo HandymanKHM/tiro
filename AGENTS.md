@@ -111,3 +111,9 @@ Add one line whenever something went wrong or took longer than it should:
 - 2026-09-25 — Configuration written from memory was wrong in places → check
   current official documentation (see `docs/research/`) before configuring
   any platform feature.
+- 2026-09-26 — Order #2: the builder's in-session reviewer approved work with
+  3 real defects; an outside reviewer on a different model caught them, and
+  one fix introduced a regression it also caught → an outside review of the
+  latest commit is mandatory before merge (operations skill).
+- 2026-09-26 — CI on Copilot PRs waits as `action_required` until approved →
+  operations re-runs it; founder-setup item 3 removes the wait.
