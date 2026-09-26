@@ -104,10 +104,6 @@ function extractDestinations(line) {
     if (open === -1) break;
     let i = open + 2;
     let depth = 1;
-    if (open > 0 && line[open - 1] === '!') {
-      searchFrom = open + 2;
-      continue;
-    }
     while (i < line.length) {
       const ch = line[i];
       if (ch === '\\') {

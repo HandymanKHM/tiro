@@ -52,6 +52,20 @@ test('reports broken internal markdown file and folder links with file, line, an
   );
 });
 
+test('does not skip links whose link text ends with exclamation', () => {
+  withMarkdownFixture(
+    {
+      'docs/exclaim.md': '[Wow!](./missing.md)',
+    },
+    (dir) => {
+      const { status, output } = runChecker(dir);
+      assert.equal(status, 1, output);
+      assert.match(output, /docs\/exclaim\.md:1:/);
+      assert.match(output, /\.\/missing\.md/);
+    },
+  );
+});
+
 test('reports broken heading fragments while allowing valid fragments in the same file', () => {
   // Criterion 2
   withMarkdownFixture(
