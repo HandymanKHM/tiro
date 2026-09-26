@@ -10,6 +10,8 @@ only its APPROVE counts.
 **Why:** Live order #2: Copilot's in-session reviewer approved code with 3
 Important defects; the outside reviewer found them and later a regression
 introduced by a fix. Evidence: HandymanKHM/tiro#3.
+**Revisit if:** the builder's in-session review matches the outside verdict
+across several consecutive orders.
 
 ## D-013 — Founding PR merged by Claude under the founder's delegation (2026-09-25)
 **Decision:** The PR that creates the department is merged by the building
@@ -44,6 +46,7 @@ source changes, or newly skips/focuses a test.
 failure of coding agents (METR 2025; ImpossibleBench, arXiv 2510.20270).
 
 ## D-009 — Independent reviewer in a fresh context, plus Copilot code review (2026-09-25)
+*Amended by D-014: the verdict that counts for merge is the outside review.*
 **Decision:** Every change is reviewed by the `reviewer` role, which sees only
 the order, plan and diff, verifies each finding, and returns a verdict. Copilot
 code review is a second, separately configured gate.

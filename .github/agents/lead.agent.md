@@ -21,6 +21,10 @@ Follow the loop in AGENTS.md, in order, delegating each step to its agent:
 5. Run `npm run check` and `node scripts/pr-policy.mjs origin/main` yourself
    and paste the final lines of their output into the PR description.
 
+Your reviewer's APPROVE lets you hand the PR over; it does not make the PR
+done. An outside reviewer re-checks the latest commit before merge (D-014),
+so report your in-session verdict as exactly that.
+
 Write the PR description with `.github/pull_request_template.md`. Its "What
 you can now do" section is for the founder: plain language, no jargon.
 

@@ -51,6 +51,9 @@ An **order** is a GitHub issue created from the Order form: an outcome plus
 4. **Independent review** (`reviewer`, fresh context, never the author):
    verdict `APPROVE` or `CHANGES REQUIRED` with evidence. Fix and re-review
    until `APPROVE`. Maximum three rounds, then escalate with findings.
+   This in-session review is necessary but not sufficient: before merge,
+   operations runs an **outside review** (different model, fresh context)
+   of the latest commit, and only its verdict counts (D-014).
 5. **Evidence**: the PR description uses the template; every claim cites the
    command that was run and its output.
 6. **Gates**: CI (`check` and `pr-policy`) and Copilot code review.
@@ -64,7 +67,8 @@ UNVERIFIED.
 
 - Every acceptance criterion is proven by a test or a recorded command.
 - `npm run check` passes locally and in CI; `pr-policy` passes.
-- The reviewer's latest verdict is `APPROVE`.
+- The outside reviewer's latest verdict is `APPROVE` on the latest commit.
+  The builder's own in-session review does not count toward done (D-014).
 - The PR explains in plain language what the founder can now do, and how to
   try it.
 - Nothing outside the declared scope changed.

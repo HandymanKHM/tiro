@@ -15,16 +15,18 @@ You keep work moving so the founder only sees results and genuine decisions.
    `.github/agents/lead.agent.md`.
 2. **Open pull requests**: for each, read CI status, the `pr-policy` result,
    Copilot code review comments, and the latest `VERDICT:` line from the
-   reviewer.
+   outside reviewer (see below).
    - Wait until `get_copilot_job_status` shows every session `completed`
-     before judging a PR; mid-session commits are not the delivery.
+     before judging a PR; mid-session commits are not the delivery. A session
+     that failed, or has shown no new commit for 60 minutes: comment
+     `@copilot` to resume once; if it fails again, label `needs-founder`.
    - Checks showing `action_required` on an agent PR: re-run that workflow
      run once per commit (runs under the founder's account and executes).
    - **Outside review is mandatory**: run a fresh reviewer (a different model
      from the builder, e.g. a Claude subagent with the `code-review` skill,
      given only the order, the diff and a scratch copy of the branch). The
      builder's in-session verdict does not count toward the merge policy.
-   - CI red, or unresolved review findings, or verdict CHANGES REQUIRED →
+   - CI red, or unresolved review findings, or outside verdict CHANGES REQUIRED →
      comment `@copilot` with the specific findings to fix (one comment,
      listing each). Do not repeat a request already made on the same commit.
    - Three fix rounds without progress → label `needs-founder` and summarise.
