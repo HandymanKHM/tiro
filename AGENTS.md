@@ -89,11 +89,24 @@ your recommendation) for **Founder-only decisions**:
 - Publishing outside this repository, or contacting any person or company.
 - Handling personal data of real people, credentials, or payment details.
 - Irreversible actions: deleting history, force-pushing, deleting repositories.
+- Repository administration: visibility, licensing, rulesets, Actions and
+  Copilot security settings (workflow approval stays on, D-016).
+- Releasing a held workflow run for a PR that changes workflow definitions,
+  actions, hooks or other execution controls (`execution-sensitive` in
+  `pr-policy`).
 - Changing governance files or existing tests — allowed in a PR, but such
   PRs are merged only by the founder. Governance files are listed in
   `GOVERNANCE` in `scripts/pr-policy.mjs` (this file, CLAUDE.md, `.github/**`,
-  `.claude/**`, the check/policy/guard scripts and their tests, package.json).
+  `.claude/**`, the check/policy/guard scripts and their tests, package.json,
+  `docs/founder-actions/**`).
 - Two reasonable readings of an order that lead to materially different results.
+
+When a founder-only action cannot be performed with the department's
+authorized tools, deliver a **founder action package** (skill
+`founder-action-package`): one tested, placeholder-free terminal block that
+preflights, performs only the approved scope, reads GitHub back and prints
+`RESULT: PASS` or `RESULT: FAIL`. Never send him website instructions when a
+CLI or API path exists. A wrong package is the department's failure.
 
 🚫 Never
 - Edit, delete, skip or weaken an existing test to make a change pass. If a
@@ -121,4 +134,12 @@ Add one line whenever something went wrong or took longer than it should:
   one fix introduced a regression it also caught → an outside review of the
   latest commit is mandatory before merge (operations skill).
 - 2026-09-26 — CI on Copilot PRs waits as `action_required` until approved →
-  operations re-runs it; founder-setup item 3 removes the wait.
+  operations re-runs it under the founder's authority, but only after the
+  trusted `pr-policy` on `main` reports `execution-sensitive: none`; the
+  approval boundary itself stays on (D-016).
+- 2026-09-26 — Operations told the founder to click through GitHub's website
+  → founder-only actions are delivered as tested terminal packages
+  (`founder-action-package` skill).
+- 2026-09-26 — A PR summary can drift from the evidence → its review section
+  must quote the latest `OUTSIDE REVIEW:` line and SHA; never say APPROVE
+  when the latest outside verdict is CHANGES REQUIRED.

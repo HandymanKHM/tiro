@@ -28,13 +28,15 @@ test, every product) and the **PR policy** (no weakening existing tests).
 ## What reaches you
 
 Only: delivered results, and decisions that are genuinely yours (money,
-publishing, real people's data, irreversible steps, changes to the
-department's own rules). Issues needing you carry the label `needs-founder`.
+publishing, real people's data, irreversible steps, repository settings,
+changes to the department's own rules). When your authority is needed, you
+get one tested terminal block to run, never a list of website clicks. Issues needing you carry the label `needs-founder`.
 
 ## Where things live
 
 - `AGENTS.md` — the department's operating manual and shared memory.
 - `docs/decisions.md` — every decision made on your behalf, with the reason.
 - `docs/research/` — what the department has verified about the world.
-- `docs/founder-setup.md` — the few switches only your account can flip.
+- `docs/founder-setup.md` — your decisions and the one-time authorizations.
+- `docs/founder-actions/` — the exact terminal packages you run to authorize them.
 - `products/` — what the department builds for you (none yet).

@@ -86,6 +86,47 @@ prompts, are what keep agents honest.
 | Prompt injection via issues | https://invariantlabs.ai/blog/mcp-github-vulnerability | Only write-access users trigger agents; text from others is data |
 | Secret leakage | arXiv 2309.07639 | Guard hook trips on secret files; GitHub secret scanning and push protection (founder setup #7) |
 
+## Findings — private repository and `main` protection (read 2026-09-26)
+
+- Rulesets: "available in public repositories with GitHub Free … and in
+  public and private repositories with GitHub Pro, GitHub Team, and GitHub
+  Enterprise Cloud."
+  https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets
+- Create ruleset API `POST /repos/{owner}/{repo}/rulesets`: required `name`,
+  `enforcement`; `pull_request` requires `dismiss_stale_reviews_on_push`,
+  `require_code_owner_review`, `require_last_push_approval`,
+  `required_approving_review_count`, `required_review_thread_resolution`;
+  `required_status_checks` requires `required_status_checks` and
+  `strict_required_status_checks_policy`. The department's body was
+  validated against GitHub's OpenAPI description (`github/rest-api-description`).
+  https://docs.github.com/rest/repos/rules#create-a-repository-ruleset
+- `GET /repos/{owner}/{repo}/rules/branches/{branch}` "Returns all active
+  rules that apply to the specified branch".
+  https://docs.github.com/rest/repos/rules#get-rules-for-a-branch
+- GitHub Actions app id is 15368 (`https://api.github.com/apps/github-actions`;
+  also the `app_id` of this repository's `check` and `pr-policy` runs).
+- `GET /user` returns the plan only to tokens with `read:user` or `user`
+  scope (GitHub OpenAPI description of "Get the authenticated user").
+- Copilot cloud agent: "available in all repositories stored on GitHub,
+  except repositories owned by managed user accounts…"; it "uses GitHub
+  Actions minutes and AI credits"; private-repo minutes are charged to the
+  owner (Free 2,000, Pro 3,000 per month).
+  https://docs.github.com/copilot/concepts/agents/cloud-agent/about-cloud-agent ;
+  https://docs.github.com/billing/concepts/product-billing/github-actions
+- Workflow approval: "Allowing GitHub Actions workflows to run without
+  approval may allow unreviewed code written by Copilot to gain write access
+  to your repository or access your GitHub Actions secrets."
+  https://docs.github.com/copilot/how-tos/use-copilot-agents/cloud-agent/configuring-agent-settings
+- Claude Code on the web: "Any public repository, and private repositories
+  that the Claude GitHub App is installed on." https://code.claude.com/docs/en/claude-code-on-the-web
+- Visibility change: stars and watchers are erased; public forks are
+  detached and stay public.
+  https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility
+- UNVERIFIED: exact behaviour of an active ruleset when a Free repository
+  becomes private (community reports: "won't be enforced … until you
+  upgrade"); package `002` avoids the question by checking the plan first
+  and by reading back the rules actually enforced on `main`.
+
 ## Recommendation
 Adopted as decisions D-008 to D-012 in `docs/decisions.md`.
 

@@ -1,29 +1,34 @@
-# Founder setup — one-time switches only your account can flip
+# Founder setup — decisions and one-time authorizations
 
-These are repository and account settings. No agent can change them, by
-design. Each takes under a minute. Done once, they never need repeating.
+Everything here needs the founder's own authority. Each item is delivered as
+a tested terminal package (`docs/founder-actions/`), never as website steps
+when a CLI or API path exists (D-018).
 
-| # | Setting | Where | Why | Status |
-|---|---|---|---|---|
-| 1 | Copilot cloud agent enabled for `tiro` | github.com/settings/copilot/coding_agent → Repository access | Lets the department's agents work in this repository | Check |
-| 2 | Partner agents: Claude on | Same page → Partner agents | A second model family available as coder or reviewer, paid from your Copilot credits (public preview) | Optional |
-| 3 | Turn off "Require approval for workflow runs" for the cloud agent | tiro → Settings → Copilot → Cloud agent → Actions workflow approval | Otherwise every agent pull request waits for you to click "Approve and run workflows" before the checks run | Needed |
-| 4 | Ruleset on `main`: require status checks `check` and `pr-policy`; block force pushes; automatically request Copilot code review, including new pushes | tiro → Settings → Rules → Rulesets → New branch ruleset | Makes the gates binding: nothing broken reaches `main` | Needed |
-| 5 | Allow auto-merge | tiro → Settings → General → Pull Requests | Lets operations queue a merge that completes only when every gate is green | Recommended |
-| 6 | Copilot spending budget | github.com/settings/billing → Budgets | Caps AI-credit spend beyond your plan's included credits | Recommended |
-| 7 | Secret scanning and push protection on | tiro → Settings → Advanced Security | GitHub blocks pushes that contain passwords or keys | Recommended |
+## Decided
 
-## Decision for you: public or private repository
+| Decision | Record | How it is carried out | Status |
+|---|---|---|---|
+| `tiro` is private; no open-source license | D-015 | Package `002` (after `001`) | Pending founder run |
+| Copilot workflow runs keep GitHub's approval boundary | D-016 | Nothing to change: it is already on. Operations releases held runs only when `pr-policy` reports `execution-sensitive: none` | In force |
+| `main` protected by ruleset `main-protection` | D-017 | Package `002` | Pending founder run |
+| Outside AI review, bound to the head SHA, gates every merge | D-014 | Operations procedure | In force once PR #4 is merged |
+| Governance PR #4 merged by the founder | D-011 | Package `001` | Pending founder run |
 
-`tiro` is currently **public**. Trade-off, verified in `docs/research/`:
+Order: `001` (merge PR #4) must succeed before `002`, because `002` checks
+that the rules it enforces are already on `main`.
 
-- **Public (current):** GitHub Actions minutes on standard runners are free;
-  anyone can read the department's rules. Only people with write access can
-  trigger agents, so strangers cannot command it. GitHub's native Copilot
-  *Automations* (event and schedule triggers) are not available.
-- **Private:** your work is confidential and Automations become available;
-  Actions minutes count against your plan's monthly allowance.
+Entitlement: GitHub enforces rulesets on a **private** personal repository
+only on GitHub Pro or higher; on GitHub Free they apply to public
+repositories only. Package `002` reads the account plan first and stops
+before changing anything if the plan cannot protect a private `main` — that
+would be a founder decision (upgrade, or private without enforced
+protection). Private repositories also use the account's Actions minutes
+(Free 2,000 / Pro 3,000 per month) for CI and Copilot agent sessions.
 
-Recommendation: keep `tiro` (the department itself) public for now, and create
-each business product in its own **private** repository when it involves
-customers, insurers or money.
+## Optional, not yet decided
+
+- **Copilot spending budget** (github.com/settings/billing → Budgets): caps
+  AI-credit spend beyond the plan's included credits. No CLI path is
+  documented for personal budgets.
+- **Partner agents (Claude, Codex) inside GitHub**: a second model family as
+  coder, paid from Copilot credits (public preview).
