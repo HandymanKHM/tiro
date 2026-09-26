@@ -51,9 +51,10 @@ An **order** is a GitHub issue created from the Order form: an outcome plus
 4. **Independent review** (`reviewer`, fresh context, never the author):
    verdict `APPROVE` or `CHANGES REQUIRED` with evidence. Fix and re-review
    until `APPROVE`. Maximum three rounds, then escalate with findings.
-   This in-session review is necessary but not sufficient: before merge,
-   operations runs an **outside review** (different model, fresh context)
-   of the latest commit, and only its verdict counts (D-014).
+   This in-session review is the builder's own quality step before handing
+   over; it is not a merge gate. Before merge, operations runs an **outside
+   review** (different model, fresh context) of the head commit, and only
+   that verdict counts (D-014).
 5. **Evidence**: the PR description uses the template; every claim cites the
    command that was run and its output.
 6. **Gates**: CI (`check` and `pr-policy`) and Copilot code review.
