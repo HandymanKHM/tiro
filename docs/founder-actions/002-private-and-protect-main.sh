@@ -47,9 +47,17 @@ esac
 OTHERS="$(gh api "repos/$REPO/rulesets?includes_parents=false" --jq "[.[] | select(.name != \"$RULESET_NAME\") | .name] | join(\",\")")" \
   || fail "cannot list rulesets"
 [ -z "$OTHERS" ] || fail "unexpected existing rulesets: $OTHERS"
-RULESET_ID="$(gh api "repos/$REPO/rulesets?includes_parents=false" --jq "[.[] | select(.name == \"$RULESET_NAME\") | .id][0] // \"\"")"
-VIS="$(gh api "repos/$REPO" --jq .visibility)"
-ok "current state: visibility=$VIS, ruleset '$RULESET_NAME' ${RULESET_ID:+exists (id $RULESET_ID)}${RULESET_ID:-absent}"
+RULESET_ID="$(gh api "repos/$REPO/rulesets?includes_parents=false" --jq "[.[] | select(.name == \"$RULESET_NAME\") | .id][0] // \"\"")" \
+  || fail "cannot list rulesets"
+VIS="$(gh api "repos/$REPO" --jq .visibility)" || fail "cannot read repository visibility"
+# Classic branch protection on main must be absent, or it could add requirements (e.g. human approval).
+BP_STATUS="$(gh api "repos/$REPO/branches/main/protection" --silent -i 2>&1 | head -n 1 | awk '{print $2}')"
+case "$BP_STATUS" in
+  404) ok "no classic branch protection on main" ;;
+  *) fail "main has classic branch protection or it cannot be read (HTTP '$BP_STATUS'); report this output" ;;
+esac
+if [ -n "$RULESET_ID" ]; then RS_STATE="exists (id $RULESET_ID)"; else RS_STATE="absent"; fi
+ok "current state: visibility=$VIS, ruleset '$RULESET_NAME' $RS_STATE"
 
 # (1) Ruleset first: if this fails, the visibility is not touched.
 BODY='{"name":"main-protection","target":"branch","enforcement":"active","bypass_actors":[],"conditions":{"ref_name":{"include":["refs/heads/main"],"exclude":[]}},"rules":[{"type":"deletion"},{"type":"non_fast_forward"},{"type":"pull_request","parameters":{"required_approving_review_count":0,"dismiss_stale_reviews_on_push":false,"require_code_owner_review":false,"require_last_push_approval":false,"required_review_thread_resolution":false,"allowed_merge_methods":["merge","squash","rebase"]}},{"type":"required_status_checks","parameters":{"strict_required_status_checks_policy":false,"do_not_enforce_on_create":false,"required_status_checks":[{"context":"check","integration_id":15368},{"context":"pr-policy","integration_id":15368}]}}]}'
@@ -61,7 +69,7 @@ else
   else
     RULESET_ID="$(printf '%s' "$BODY" | gh api -X POST "repos/$REPO/rulesets" --input - --jq .id)" || fail "GitHub refused the ruleset creation"
   fi
-  CHANGED="ruleset '$RULESET_NAME' (id $RULESET_ID) was written; visibility not yet changed"
+  CHANGED="ruleset '$RULESET_NAME' (id $RULESET_ID) was written; visibility not changed"
   ok "ruleset '$RULESET_NAME' written (id $RULESET_ID)"
 fi
 GOT="$(gh api "repos/$REPO/rulesets/$RULESET_ID" --jq "$NORMALIZE")" || fail "cannot read the ruleset back"
@@ -73,7 +81,10 @@ if [ "$VIS" = "private" ]; then
   ok "repository already private — not changed"
 else
   gh api -X PATCH "repos/$REPO" -f visibility=private --jq .visibility >/dev/null || fail "GitHub refused the visibility change"
-  CHANGED="ruleset written and repository made private"
+  case "$CHANGED" in
+    "nothing was changed") CHANGED="repository made private; ruleset was already correct" ;;
+    *) CHANGED="ruleset '$RULESET_NAME' (id $RULESET_ID) was written and repository made private" ;;
+  esac
 fi
 
 # (3) Read back both states from GitHub.

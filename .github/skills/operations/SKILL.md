@@ -28,12 +28,16 @@ action is his: take only the actions below.
       boundary, D-016). Before re-running one, evaluate the PR with the
       **trusted copy of the policy on `main`** — never the PR's own copy:
       ```
-      git fetch origin main "pull/<N>/head:refs/remotes/pr/<N>"
+      set -e
+      git fetch origin +main:refs/remotes/origin/main "+pull/<N>/head:refs/remotes/pr/<N>"
       git checkout --detach origin/main
-      node scripts/pr-policy.mjs origin/main refs/remotes/pr/<N>
+      S=$(git rev-parse refs/remotes/pr/<N>)
+      node scripts/pr-policy.mjs origin/main "$S"
       ```
-      - `execution-sensitive: none` → re-run the held run for the head
-        commit (`rerun_workflow_run`), once per commit.
+      Stop if any command fails. `S` is the evaluated commit.
+      - `execution-sensitive: none` → re-run only held runs whose `head_sha`
+        equals `S` (`rerun_workflow_run`), once per commit. If the PR head
+        is no longer `S`, start this step again for the new head.
       - Anything else → do not re-run. Label `needs-founder` and comment one
         paragraph: which workflow, action, hook or execution setting changed
         and why that needs the founder's decision.
@@ -52,7 +56,7 @@ action is his: take only the actions below.
    5. **Keep the PR description honest.** Its review section must quote the
       latest `OUTSIDE REVIEW:` line and SHA. If the latest external evidence
       says CHANGES REQUIRED, the description must not say APPROVE — edit it.
-3. **Merge policy** — squash-merge only when ALL hold on the current head SHA:
+3. **Merge policy** — merge only when ALL hold on the current head SHA:
    - required checks `check` and `pr-policy` are green (the `main` ruleset
      enforces this; never bypass it);
    - the latest `OUTSIDE REVIEW:` comment says `APPROVE` at that exact SHA;
@@ -61,7 +65,10 @@ action is his: take only the actions below.
    - the trusted `pr-policy` run reports `governance: none` and
      `execution-sensitive: none`;
    - the PR is not a draft because work is unfinished.
-   Pass `expectedHeadSha` = the reviewed SHA to the merge call.
+   Merge with `merge_method: merge` (a merge commit, so the reviewed SHA
+   itself becomes part of `main`'s history) and `expectedHeadSha` = the
+   reviewed SHA; afterwards confirm the reviewed SHA is an ancestor of
+   `main`.
    Governance PRs are never merged by operations: prepare a founder action
    package for the merge instead (`founder-action-package` skill).
 4. **Report** to the founder only what changed: delivered (with "what you can

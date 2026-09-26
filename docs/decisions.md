@@ -3,6 +3,14 @@
 Newest first. Each entry: what was decided, why, and what would change it.
 The founder delegated these decisions on 2026-09-25.
 
+## D-019 — Merge commits, not squash, for reviewed work (2026-09-26)
+**Decision:** Pull requests are merged with a merge commit, so the exact
+commit that the outside review approved becomes part of `main`'s history
+and can be proven there (`compare/<SHA>...main` is `ahead` or `identical`).
+**Why:** A squash merge creates a new commit; the reviewed SHA would never
+reach `main`, so "the reviewed commit is what shipped" could only be shown
+indirectly. Found by the outside review of PR #4.
+
 ## D-018 — Founder action packages instead of website instructions (2026-09-26)
 **Decision:** Every action that needs the founder's own authority and cannot
 be done with the department's tools is delivered as one tested terminal
